@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Utilities for spinning up HTTP health check server.'
   spec.description   = spec.summary
   spec.homepage      = 'https://gitlab.sbmt.io/nstmrt/rubygems/http-health-check'
-  spec.required_ruby_version = Gem::Requirement.new('>= 2.7.0')
+  spec.required_ruby_version = Gem::Requirement.new('>= 2.5.0')
 
   spec.metadata['allowed_push_host'] = 'https://nexus.sbmt.io'
 
