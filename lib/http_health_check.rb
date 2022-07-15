@@ -3,6 +3,7 @@
 require 'rack'
 
 require_relative 'http_health_check/version'
+require_relative 'http_health_check/config/dsl'
 require_relative 'http_health_check/probe'
 require_relative 'http_health_check/rack_app'
 require_relative 'http_health_check/server'
@@ -13,19 +14,14 @@ module HttpHealthCheck
 
   class ConfigurationError < Error; end
 
-  def self.configure(routes)
-    @rack_app = RackApp.new(routes)
+  def self.configure(&block)
+    @rack_app = RackApp.configure(&block)
   end
 
   def self.rack_app
-    @rack_app ||= init_default_rack_app
-  end
-
-  def self.init_default_rack_app
-    routes = {}
-    routes['readiness/sidekiq'] = Probes::Sidekiq if defined?(::Sidekiq)
-    routes['readiness/delayed_job'] = Probes::DelayedJob if defined?(::Delayed::Job)
-
-    RackApp.new(routes)
+    @rack_app ||= RackApp.configure do |c|
+      c.probe '/readiness/sidekiq', Probes::Sidekiq if defined?(::Sidekiq)
+      c.probe '/readiness/delayed_job', Probes::DelayedJob if defined?(::Delayed::Job)
+    end
   end
 end

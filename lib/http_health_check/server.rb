@@ -7,7 +7,7 @@ module HttpHealthCheck
     end
 
     def self.run(port:, host: '0.0.0.0', rack_app: nil)
-      rack_app ||= RackApp.new([])
+      rack_app ||= ::HttpHealthCheck.rack_app
       ::Rack::Handler::WEBrick.run(rack_app, Host: host, Port: port, AccessLog: [])
     end
   end
