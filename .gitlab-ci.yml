@@ -5,3 +5,7 @@ include:
   - project: "nstmrt/rubygems/templates"
     ref: master
     file: "build-rubygems.yml"
+
+tests:
+  before_script:
+    - gem install bundler:$(grep 'BUNDLED WITH' Gemfile.lock -A 2 | tail -n1 | xargs)
