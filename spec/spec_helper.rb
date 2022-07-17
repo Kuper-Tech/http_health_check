@@ -19,6 +19,14 @@
 require 'dotenv/load'
 require 'http_health_check'
 
+if ENV['TEST_COVERAGE'] == 'true'
+  require 'simplecov'
+  require 'simplecov-cobertura'
+  SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+
+  SimpleCov.start 'rails'
+end
+
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest

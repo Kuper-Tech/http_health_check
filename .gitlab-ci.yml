@@ -13,6 +13,7 @@ tests:
   variables:
     REDIS_PASSWORD: supersecret
     REDIS_URL: redis://:supersecret@redis:6379/0
+    TEST_COVERAGE: 'true'
   before_script:
     - gem install bundler:$(grep 'BUNDLED WITH' Gemfile.lock -A 2 | tail -n1 | xargs)
   script:

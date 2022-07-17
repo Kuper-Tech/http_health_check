@@ -9,6 +9,7 @@ GEM
   specs:
     ast (2.4.2)
     diff-lcs (1.5.0)
+    docile (1.4.0)
     dotenv (2.7.6)
     parallel (1.22.1)
     parser (3.1.2.0)
@@ -44,6 +45,15 @@ GEM
     rubocop-ast (1.17.0)
       parser (>= 3.1.1.0)
     ruby-progressbar (1.11.0)
+    simplecov (0.21.2)
+      docile (~> 1.1)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-cobertura (2.1.0)
+      rexml
+      simplecov (~> 0.19)
+    simplecov-html (0.12.3)
+    simplecov_json_formatter (0.1.4)
     unicode-display_width (1.8.0)
 
 PLATFORMS
@@ -56,6 +66,8 @@ DEPENDENCIES
   redis (~> 4.2.5)
   rspec (~> 3.2)
   rubocop (~> 0.81)
+  simplecov
+  simplecov-cobertura
 
 BUNDLED WITH
    2.3.15
