@@ -5,10 +5,10 @@ require_relative 'lib/http_health_check/version'
 Gem::Specification.new do |spec|
   spec.name          = 'http_health_check'
   spec.version       = HttpHealthCheck::VERSION
-  spec.authors       = ['n.babushkin']
-  spec.email         = ['n.babushkin@fun-box.ru']
+  spec.authors       = ['SberMarket team']
+  spec.email         = ['nikita.babushkin@sbermarket.ru']
 
-  spec.summary       = 'Utilities for spinning up HTTP health check server.'
+  spec.summary       = 'Simple and extensible HTTP health checks server.'
   spec.description   = spec.summary
   spec.homepage      = 'https://gitlab.sbmt.io/nstmrt/rubygems/http-health-check'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.5.0')
