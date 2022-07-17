@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-## 0.1.1 (unreleased)
+## 0.1.1 (2022-07-17)
 
 Features:
 

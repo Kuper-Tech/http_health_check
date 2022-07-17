@@ -5,7 +5,7 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'http_health_check', '~> 0.1.0'
+gem 'http_health_check', '~> 0.1.1'
 ```
 
 And then execute:
@@ -134,6 +134,9 @@ docker-compose up redis
 
 Every new (git) tag will be built and deployed automatically via gitlab CI pipeline. We recommend using [bump2version](https://github.com/c4urself/bump2version) to tag new releases.
 
+1. Update changelog and git add it
+2.
 ```sh
-bump2version patch
+bump2version patch --allow-dirty
 ```
+3. git push && git push --tags
