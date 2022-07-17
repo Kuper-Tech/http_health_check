@@ -7,16 +7,15 @@ require 'uri'
 describe HttpHealthCheck do
   let(:port) { 51_142 }
 
-  def request(path)
-    uri = URI.parse('http://127.0.0.1')
-    uri.path = path
+  def request(path_with_query)
+    uri = URI.parse("http://127.0.0.1/#{path_with_query}")
     uri.port = port
 
     Net::HTTP.get_response(uri)
   end
 
-  def wait_server_started(attempts_left = 10)
-    Socket.tcp('127.0.0.1', port, connect_timeout: 1) {}
+  def wait_server_started(attempts_left = 25)
+    Socket.tcp('127.0.0.1', port) {}
   rescue StandardError
     raise if attempts_left == 0
 
@@ -41,9 +40,28 @@ describe HttpHealthCheck do
     end
 
     context 'with custom configuration' do
+      class MyCustomProbe
+        include HttpHealthCheck::Probe
+
+        def probe(env)
+          if env[Rack::QUERY_STRING].include?('fail')
+            probe_error query: env[Rack::QUERY_STRING]
+          elsif env[Rack::QUERY_STRING].include?('raise')
+            raise 'boom'
+          else
+            probe_ok ok: true
+          end
+        end
+
+        def meta
+          { foo: :bar }
+        end
+      end
+
       let(:rack_app) do
         HttpHealthCheck::RackApp.configure do |c|
           c.probe('/foobar') { |_env| [204, {}, [':)']] }
+          c.probe('/custom', MyCustomProbe.new)
           c.fallback_app { |_env| [418, {}, ['+_+']] }
 
           HttpHealthCheck.add_builtin_probes(c)
@@ -55,6 +73,22 @@ describe HttpHealthCheck do
         expect(request('/liveness').code).to eq('200')
         expect(request('/foobar').code).to eq('204')
         expect(request('/bazqux').code).to eq('418')
+
+        resp_custom_ex = request('/custom?raise=true')
+        expect(resp_custom_ex.code).to eq('500')
+        expect(JSON.parse(resp_custom_ex.body)).to eq(
+          'foo' => 'bar',
+          'error_class' => 'RuntimeError',
+          'error_message' => 'boom'
+        )
+
+        resp_custom_err = request('/custom?fail=true')
+        expect(resp_custom_err.code).to eq('500')
+        expect(JSON.parse(resp_custom_err.body)).to eq('foo' => 'bar', 'query' => 'fail=true')
+
+        resp_custom_ok = request('/custom')
+        expect(resp_custom_ok.code).to eq('200')
+        expect(JSON.parse(resp_custom_ok.body)).to eq('foo' => 'bar', 'ok' => true)
       end
     end
   end

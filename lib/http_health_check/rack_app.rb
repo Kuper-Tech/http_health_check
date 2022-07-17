@@ -25,7 +25,7 @@ module HttpHealthCheck
     attr_reader :routes, :fallback_app
 
     def call(env)
-      result = routes.fetch(env['REQUEST_PATH'], fallback_app).call(env)
+      result = routes.fetch(env[Rack::REQUEST_PATH], fallback_app).call(env)
       return result unless result.is_a?(Probe::Result)
 
       [result.ok? ? 200 : 500, HEADERS, [result.meta.to_json]]
