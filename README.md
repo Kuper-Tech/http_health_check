@@ -100,7 +100,7 @@ end
 
 #### [Sidekiq](./lib/http_health_check/probes/sidekiq.rb)
 
-Sidekiq probe ensures that sidekiq is ready readiness by checking redis is available and writable. It uses sidekiq's redis connection pool to avoid spinning up extra connections.
+Sidekiq probe ensures that sidekiq is ready by checking redis is available and writable. It uses sidekiq's redis connection pool to avoid spinning up extra connections.
 Be aware, that this approach does not cover issues with sidekiq being stuck processing slow/endless jobs. Such cases are nearly impossible to cover without false-positive alerts.
 
 ```ruby
@@ -112,7 +112,7 @@ end
 #### [DelayedJob](./lib/http_health_check/probes/delayed_job.rb) (active record)
 
 Delayed Job probe is intended to work with [active record backend](https://github.com/collectiveidea/delayed_job_active_record).
-It checks DelayedJob is healthy by enqueuing an empty job which is being deleted right after insertion. That way we can ensure that underlying database is connectable and writable.
+It checks DelayedJob is healthy by enqueuing an empty job which will be deleted right after insertion. This allows us to be sure that underlying database is connectable and writable.
 Be aware, that by enqueuing a new job with every health check we are incrementing primary key sequence.
 
 ```ruby

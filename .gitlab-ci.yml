@@ -19,4 +19,4 @@ tests:
   script:
     - bundle install --jobs 4 --retry 4
     - bundle exec rubocop
-    - bundle exec rspec
+    - bundle exec rspec --format progress --format RspecJunitFormatter --out junit.xml
