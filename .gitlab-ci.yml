@@ -8,7 +8,8 @@ include:
 
 tests:
   services:
-    - dreg.sbmt.io/dhub/bitnami/redis:6.2
+      - name: dreg.sbmt.io/dhub/bitnami/redis:6.2
+        alias: redis
   variables:
     REDIS_PASSWORD: supersecret
     REDIS_URL: redis://:supersecret@redis:6379/0
