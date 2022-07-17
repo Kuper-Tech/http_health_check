@@ -15,10 +15,17 @@ describe HttpHealthCheck do
     Net::HTTP.get_response(uri)
   end
 
+  def wait_server_started(attempts_left = 10)
+    Socket.tcp('127.0.0.1', port, connect_timeout: 1) {}
+  rescue StandardError
+    raise if attempts_left == 0
+
+    sleep(0.005)
+    wait_server_started(attempts_left - 1)
+  end
+
   def start_server(opts = {})
-    HttpHealthCheck.run_server_async(opts.merge(port: port)).tap do
-      sleep(0.2)
-    end
+    HttpHealthCheck.run_server_async(opts.merge(port: port)).tap { wait_server_started }
   end
 
   describe '#run_server_async' do
