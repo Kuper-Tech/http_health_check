@@ -1,0 +1,13 @@
+version: '3.5'
+services:
+  redis:
+    image: dreg.sbmt.io/dhub/bitnami/redis:6.2
+    environment:
+      REDIS_PASSWORD: supersecret
+    volumes:
+      - redis:/data
+    ports:
+      - '6379:6379'
+
+volumes:
+  redis: {}

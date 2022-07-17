@@ -9,12 +9,14 @@ GEM
   specs:
     ast (2.4.2)
     diff-lcs (1.5.0)
+    dotenv (2.7.6)
     parallel (1.22.1)
     parser (3.1.2.0)
       ast (~> 2.4.1)
     rack (2.2.4)
     rainbow (3.1.1)
     rake (13.0.6)
+    redis (4.2.5)
     regexp_parser (2.5.0)
     rexml (3.2.5)
     rspec (3.11.0)
@@ -48,8 +50,10 @@ PLATFORMS
   x86_64-darwin-21
 
 DEPENDENCIES
+  dotenv (~> 2.7.6)
   http_health_check!
   rake (~> 13.0)
+  redis (~> 4.2.5)
   rspec (~> 3.2)
   rubocop (~> 0.81)
 

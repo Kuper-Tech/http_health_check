@@ -16,6 +16,7 @@
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
+require 'dotenv/load'
 require 'http_health_check'
 
 RSpec.configure do |config|

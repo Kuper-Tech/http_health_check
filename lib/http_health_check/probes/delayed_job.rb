@@ -1,15 +1,23 @@
 # frozen_string_literal: true
 
-require_relative 'delayed_job/health_check_job'
-
 module HttpHealthCheck
   module Probes
     class DelayedJob
-      autoload :HealthCheckJob, 'lib/probes/delayed_job/health_check_job'
+      class HealthCheckJob
+        def self.perform; end
+
+        def self.queue_name
+          'health-check'
+        end
+      end
       include ::HttpHealthCheck::Probe
 
+      def initialize(delayed_job: ::Delayed::Job)
+        @delayed_job = delayed_job
+      end
+
       def probe(_env)
-        ::Delayed::Job.enqueue(HealthCheckJob).destroy!
+        @delayed_job.enqueue(HealthCheckJob).destroy!
         probe_ok
       end
     end

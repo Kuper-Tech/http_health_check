@@ -1,15 +1,11 @@
 # HttpHealthCheck
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/http_health_check`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
-
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'http_health_check'
+gem 'http_health_check', '~> 0.1.0'
 ```
 
 And then execute:
@@ -22,14 +18,111 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Sidekiq
+
+```ruby
+# ./config/initializers/sidekiq.rb
+Sidekiq.configure_server do |config|
+  HttpHealthCheck.run_server_async(port: 5555)
+end
+```
+
+### Delayed Job
+
+```ruby
+# ./script/delayed_job
+module Delayed::AfterFork
+  def after_fork
+    HttpHealthCheck.run_server_async(port: 5555)
+    super
+  end
+end
+```
+
+### Changing global configuration
+
+```ruby
+HttpHealthCheck.configure do |c|
+  # add probe with any callable class
+  c.probe '/health/my_service', MyProbe.new
+
+  # or with block
+  c.probe '/health/fake' do |_env|
+    [200, {}, ['OK']]
+  end
+
+  # optionally add builtin probes
+  HttpHealthCheck.add_builtin_probes(c)
+
+  # optionally override fallback (route not found) handler
+  c.fallback_handler do |env|
+    [404, {}, ['not found :(']]
+  end
+end
+```
+
+### Running server with custom rack app
+
+```ruby
+rack_app = HttpHealthCheck::RackApp.configure do |c|
+  c.probe '/health/my_service', MyProbe.new
+end
+HttpHealthCheck.run_server_async(port: 5555, rack_app: rack_app)
+```
+
+### Writing your own probes
+
+Probes are built around [HttpHealthCheck::Probe](./lib/http_health_check/probe.rb) mixin. Every probe defines **probe** method which receives [rack env](https://www.rubydoc.info/gems/rack/Rack/Request/Env)
+and should return [HttpHealthCheck::Probe::Result](./lib/http_health_check/probe/result.rb) or rack-compatible response (status-headers-body tuple).
+Probe-mixin provides convenience methods `probe_ok` and `probe_error` for creating [HttpHealthCheck::Probe::Result](./lib/http_health_check/probe/result.rb) instance. Both of them accept optional metadata hash that will be added to response body.
+Any exception (StandardError) will be captured and converted into error-result.
+
+```ruby
+class MyProbe
+  include HttpHealthCheck::Probe
+
+  def probe(_env)
+    status = MyService.status
+    return probe_ok if status == :ok
+
+    probe_error status: status
+  end
+end
+```
+
+```ruby
+HttpHealthCheck.configure do |config|
+  config.probe '/readiness/my_service', MyProbe.new
+end
+```
+
+### Builtin probes
+
+#### [Sidekiq](./lib/http_health_check/probes/sidekiq.rb)
+
+Sidekiq probe ensures that sidekiq is ready readiness by checking redis is available and writable. It uses sidekiq's redis connection pool to avoid spinning up extra connections.
+Be aware, that this approach does not cover issues with sidekiq being stuck processing slow/endless jobs. Such cases are nearly impossible to cover without false-positive alerts.
+
+```ruby
+HttpHealthCheck.configure do |config|
+  config.probe '/readiness/delayed_job', HttpHealthCheck::Probes::Sidekiq.new
+end
+```
+
+#### [DelayedJob](./lib/http_health_check/probes/delayed_job.rb) (active record)
+
+Delayed Job probe is intended to work with [active record backend](https://github.com/collectiveidea/delayed_job_active_record).
+It checks DelayedJob is healthy by enqueuing an empty job which is being deleted right after insertion. That way we can ensure that underlying database is connectable and writable.
+Be aware, that by enqueuing a new job with every health check we are incrementing primary key sequence.
+
+```ruby
+HttpHealthCheck.configure do |config|
+  config.probe '/readiness/delayed_job', HttpHealthCheck::Probes::DelayedJob.new
+end
+```
 
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/http_health_check.

@@ -6,7 +6,6 @@ require_relative 'http_health_check/version'
 require_relative 'http_health_check/config/dsl'
 require_relative 'http_health_check/probe'
 require_relative 'http_health_check/rack_app'
-require_relative 'http_health_check/server'
 require_relative 'http_health_check/probes'
 
 module HttpHealthCheck
@@ -19,9 +18,22 @@ module HttpHealthCheck
   end
 
   def self.rack_app
-    @rack_app ||= RackApp.configure do |c|
-      c.probe '/readiness/sidekiq', Probes::Sidekiq if defined?(::Sidekiq)
-      c.probe '/readiness/delayed_job', Probes::DelayedJob if defined?(::Delayed::Job)
-    end
+    @rack_app ||= RackApp.configure { |c| add_builtin_probes(c) }
+  end
+
+  def self.add_builtin_probes(conf)
+    conf.probe '/readiness/sidekiq', Probes::Sidekiq.new if defined?(::Sidekiq)
+    conf.probe '/readiness/delayed_job', Probes::DelayedJob.new if defined?(::Delayed::Job)
+
+    conf
+  end
+
+  def self.run_server_async(opts)
+    Thread.new { run_server(opts) }
+  end
+
+  def self.run_server(port:, host: '0.0.0.0', rack_app: nil)
+    rack_app ||= ::HttpHealthCheck.rack_app
+    ::Rack::Handler::WEBrick.run(rack_app, Host: host, Port: port, AccessLog: [])
   end
 end

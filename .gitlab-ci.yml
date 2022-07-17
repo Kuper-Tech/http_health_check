@@ -7,5 +7,10 @@ include:
     file: "build-rubygems.yml"
 
 tests:
+  services:
+    - dreg.sbmt.io/dhub/bitnami/redis:6.2
+  variables:
+    REDIS_PASSWORD: supersecret
+    REDIS_URL: REDIS_URL=redis://:supersecret@redis:6379/0
   before_script:
     - gem install bundler:$(grep 'BUNDLED WITH' Gemfile.lock -A 2 | tail -n1 | xargs)
