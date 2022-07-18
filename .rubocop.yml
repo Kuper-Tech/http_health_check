@@ -7,3 +7,6 @@ Style/Documentation:
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'
+
+Style/CommentedKeyword:
+  Enabled: false

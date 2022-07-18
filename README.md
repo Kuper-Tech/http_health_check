@@ -49,6 +49,34 @@ module Delayed::AfterFork
 end
 ```
 
+### Karafka ~> 1.4
+
+Ruby-kafka probe is disabled by default as it requires app-specific configuration to work properly. Example usage with karafka framework:
+
+```ruby
+# ./karafka.rb
+
+class KarafkaApp < Karafka::App
+  # ...
+  # karafka app configuration
+  # ...
+end
+
+KarafkaApp.boot!
+
+HttpHealthCheck.run_server_async(
+  port: 5555,
+  rack_app: HttpHealthCheck::RackApp.configure do |c|
+    c.probe '/readiness/karafka', HttpHealthCheck::Probes::RubyKafka.new(
+      consumer_groups: KarafkaApp.consumer_groups.map(&:id),
+      # default heartbeat interval is 3 seconds, but we want to give it
+      # an ability to skip a few before failing the probe
+      heartbeat_interval_sec: 10
+    )
+  end
+)
+```
+
 ### Kubernetes deployment example
 
 ```yaml
@@ -163,6 +191,20 @@ Be aware that by enqueuing a new job with every health check, we are incrementin
 ```ruby
 HttpHealthCheck.configure do |config|
   config.probe '/readiness/delayed_job', HttpHealthCheck::Probes::DelayedJob.new
+end
+```
+
+#### [ruby-kafka](./lib/http_health_check/probes/ruby_kafka.rb)
+
+ruby-kafka probe is expected to be configured with consumer groups list. It subscribes to ruby-kafka's `heartbeat.consumer.kafka` ActiveSupport notification and tracks heartbeats for every given consumer group.
+It expects a heartbeat every `:heartbeat_interval_sec` (10 seconds by default).
+
+```ruby
+heartbeat_app = HttpHealthCheck::RackApp.configure do |c|
+  c.probe '/readiness/kafka', HttpHealthCheck::Probes::Karafka.new(
+    consumer_groups: ['consumer-one', 'consumer-two'],
+    heartbeat_interval_sec: 42
+  )
 end
 ```
 
