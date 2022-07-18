@@ -6,18 +6,18 @@ Gem::Specification.new do |spec|
   spec.name          = 'http_health_check'
   spec.version       = HttpHealthCheck::VERSION
   spec.authors       = ['SberMarket team']
-  spec.email         = ['nikita.babushkin@sbermarket.ru']
+  spec.email         = ['pochi.73@gmail.com']
 
   spec.summary       = 'Simple and extensible HTTP health checks server.'
   spec.description   = spec.summary
-  spec.homepage      = 'https://gitlab.sbmt.io/nstmrt/rubygems/http-health-check'
+  spec.homepage      = 'https://github.com/SberMarket-Tech/http_health_check'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.5.0')
 
-  spec.metadata['allowed_push_host'] = 'https://nexus.sbmt.io'
+  spec.metadata['allowed_push_host'] = 'https://rubygems.org/'
 
   spec.metadata['homepage_uri'] = spec.homepage
-  spec.metadata['source_code_uri'] = 'https://gitlab.sbmt.io/nstmrt/rubygems/http-health-check'
-  spec.metadata['changelog_uri'] = 'https://gitlab.sbmt.io/nstmrt/rubygems/http-health-check/-/blob/main/CHANGELOG.md'
+  spec.metadata['source_code_uri'] = 'https://github.com/SberMarket-Tech/http_health_check'
+  spec.metadata['changelog_uri'] = 'https://github.com/SberMarket-Tech/http_health_check/blob/main/CHANGELOG.md'
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     `git ls-files -z`.split("\x0").reject { |f| f.match(%r{\A(?:test|spec|features)/}) }
