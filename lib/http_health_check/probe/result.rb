@@ -13,10 +13,6 @@ module HttpHealthCheck
 
       def initialize(is_ok, meta)
         @meta = Hash(meta)
-        unless @meta.is_a?(Hash)
-
-        end
-
         @ok = is_ok
       rescue StandardError => e
         e = ::HttpHealthCheck::ConfigurationError.new(e.message)
