@@ -20,6 +20,8 @@ Or install it yourself as:
 
 ### Sidekiq
 
+Sidekiq health check is available at `/readiness/sidekiq`.
+
 ```ruby
 # ./config/initializers/sidekiq.rb
 Sidekiq.configure_server do |config|
@@ -28,6 +30,8 @@ end
 ```
 
 ### Delayed Job
+
+DelayedJob health check is available at `/readiness/delayed_job`.
 
 ```ruby
 # ./script/delayed_job
@@ -139,7 +143,9 @@ Every new (git) tag will be built and deployed automatically via gitlab CI pipel
 
 1. Update changelog and git add it
 2.
+
 ```sh
 bump2version patch --allow-dirty
 ```
+
 3. git push && git push --tags

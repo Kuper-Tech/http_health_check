@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+module Delayed
+  module Job; end
+end
+
 require 'redis'
 require_relative '../../../lib/http_health_check/probes/delayed_job'
 

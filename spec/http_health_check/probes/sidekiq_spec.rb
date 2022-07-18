@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'redis'
+module Sidekiq; end
 require_relative '../../../lib/http_health_check/probes/sidekiq'
 
 describe HttpHealthCheck::Probes::Sidekiq do

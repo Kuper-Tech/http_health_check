@@ -22,8 +22,15 @@ module HttpHealthCheck
   end
 
   def self.add_builtin_probes(conf)
-    conf.probe '/readiness/sidekiq', Probes::Sidekiq.new if defined?(::Sidekiq)
-    conf.probe '/readiness/delayed_job', Probes::DelayedJob.new if defined?(::Delayed::Job)
+    if defined?(::Sidekiq)
+      require_relative 'http_health_check/probes/sidekiq' unless defined?(Probes::Sidekiq)
+      conf.probe '/readiness/sidekiq', Probes::Sidekiq.new
+    end
+
+    if defined?(::Delayed::Job)
+      require_relative 'http_health_check/probes/delayed_job' unless defined?(Probes::DelayedJob)
+      conf.probe '/readiness/delayed_job', Probes::DelayedJob.new
+    end
 
     conf
   end
