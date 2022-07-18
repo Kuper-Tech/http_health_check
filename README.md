@@ -2,6 +2,10 @@
 
 [![Gem Version](https://badge.fury.io/rb/http_health_check.svg)](https://badge.fury.io/rb/http_health_check)
 
+HttpHealthCheck is a tiny framework for building health check for your application components. It provides a set of built-in checkers (a.k.a. probes) and utilities for building your own.
+
+HttpHealthCheck is built with kubernetes health probes in mind, but it can be used with http health checker.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -45,6 +49,38 @@ module Delayed::AfterFork
 end
 ```
 
+### Kubernetes deployment example
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sidekiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sidekiq
+  template:
+    metadata:
+      labels:
+        app: sidekiq
+    spec:
+      containers:
+        - name: sidekiq
+          image: my-app:latest
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: 5555
+              scheme: HTTP
+          readinessProbe:
+            httpGet:
+              path: /readiness/sidekiq
+              port: 5555
+              scheme: HTTP
+```
+
 ### Changing global configuration
 
 ```ruby
@@ -57,7 +93,7 @@ HttpHealthCheck.configure do |c|
     [200, {}, ['OK']]
   end
 
-  # optionally add builtin probes
+  # optionally add built-in probes
   HttpHealthCheck.add_builtin_probes(c)
 
   # optionally override fallback (route not found) handler
@@ -83,7 +119,7 @@ HttpHealthCheck.run_server_async(port: 5555, rack_app: rack_app)
 
 Probes are built around [HttpHealthCheck::Probe](./lib/http_health_check/probe.rb) mixin. Every probe defines **probe** method which receives [rack env](https://www.rubydoc.info/gems/rack/Rack/Request/Env)
 and should return [HttpHealthCheck::Probe::Result](./lib/http_health_check/probe/result.rb) or rack-compatible response (status-headers-body tuple).
-Probe-mixin provides convenience methods `probe_ok` and `probe_error` for creating [HttpHealthCheck::Probe::Result](./lib/http_health_check/probe/result.rb) instance. Both of them accept optional metadata hash that will be added to response body.
+Probe-mixin provides convenience methods `probe_ok` and `probe_error` for creating [HttpHealthCheck::Probe::Result](./lib/http_health_check/probe/result.rb) instance. Both of them accept optional metadata hash that will be added to the response body.
 Any exception (StandardError) will be captured and converted into error-result.
 
 ```ruby
@@ -105,12 +141,12 @@ HttpHealthCheck.configure do |config|
 end
 ```
 
-### Builtin probes
+### Built-in probes
 
 #### [Sidekiq](./lib/http_health_check/probes/sidekiq.rb)
 
 Sidekiq probe ensures that sidekiq is ready by checking redis is available and writable. It uses sidekiq's redis connection pool to avoid spinning up extra connections.
-Be aware, that this approach does not cover issues with sidekiq being stuck processing slow/endless jobs. Such cases are nearly impossible to cover without false-positive alerts.
+Be aware that this approach does not cover issues with sidekiq being stuck processing slow/endless jobs. Such cases are nearly impossible to cover without false-positive alerts.
 
 ```ruby
 HttpHealthCheck.configure do |config|
@@ -121,8 +157,8 @@ end
 #### [DelayedJob](./lib/http_health_check/probes/delayed_job.rb) (active record)
 
 Delayed Job probe is intended to work with [active record backend](https://github.com/collectiveidea/delayed_job_active_record).
-It checks DelayedJob is healthy by enqueuing an empty job which will be deleted right after insertion. This allows us to be sure that underlying database is connectable and writable.
-Be aware, that by enqueuing a new job with every health check we are incrementing primary key sequence.
+It checks DelayedJob is healthy by enqueuing an empty job which will be deleted right after insertion. This allows us to be sure that the underlying database is connectable and writable.
+Be aware that by enqueuing a new job with every health check, we are incrementing the primary key sequence.
 
 ```ruby
 HttpHealthCheck.configure do |config|
