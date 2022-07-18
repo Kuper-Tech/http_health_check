@@ -91,5 +91,27 @@ describe HttpHealthCheck do
         expect(JSON.parse(resp_custom_ok.body)).to eq('foo' => 'bar', 'ok' => true)
       end
     end
+
+    context 'with configured logger' do
+      let(:io) { StringIO.new }
+      let(:logger) { Logger.new(io, level: Logger::Severity::INFO) }
+
+      let(:rack_app) do
+        HttpHealthCheck::RackApp.configure do |c|
+          HttpHealthCheck.add_builtin_probes(c)
+          c.logger(logger)
+        end
+      end
+      let!(:server) { start_server rack_app: rack_app }
+
+      it 'logs server start and requests' do
+        expect(request('/liveness').code).to eq('200')
+        io.rewind
+        logs = io.read
+
+        expect(logs).to include('WEBrick::HTTPServer#start')
+        expect(logs).to include('GET /liveness HTTP/1.1')
+      end
+    end
   end
 end

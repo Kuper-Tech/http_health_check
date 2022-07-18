@@ -18,7 +18,7 @@ module HttpHealthCheck
     end
 
     def initialize(routes, fallback_app: DEFAULT_FALLBACK_APP, logger: nil)
-      @logger = logger
+      @logger = logger || Logger.new(IO::NULL, level: Logger::Severity::UNKNOWN)
       @fallback_app = ensure_callable!(fallback_app)
       @routes = routes.each_with_object('/liveness' => LIVENESS_CHECK_APP) do |(path, handler), acc|
         acc[path.to_s] = ensure_callable!(handler)
