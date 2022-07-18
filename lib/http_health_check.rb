@@ -34,6 +34,12 @@ module HttpHealthCheck
 
   def self.run_server(port:, host: '0.0.0.0', rack_app: nil)
     rack_app ||= ::HttpHealthCheck.rack_app
-    ::Rack::Handler::WEBrick.run(rack_app, Host: host, Port: port, AccessLog: [])
+    app = rack_app.logger.nil? ? rack_app : ::Rack::CommonLogger.new(rack_app, rack_app.logger)
+
+    ::Rack::Handler::WEBrick.run(app,
+                                 Host: host,
+                                 Port: port,
+                                 AccessLog: [],
+                                 Logger: rack_app.logger)
   end
 end

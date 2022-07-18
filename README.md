@@ -58,6 +58,9 @@ HttpHealthCheck.configure do |c|
   c.fallback_handler do |env|
     [404, {}, ['not found :(']]
   end
+
+  # configure requests logger. Disabled by default
+  c.logger Rails.logger
 end
 ```
 

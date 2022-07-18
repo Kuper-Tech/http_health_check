@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    http_health_check (0.1.0)
+    http_health_check (0.1.1)
       rack (~> 2.0)
 
 GEM
