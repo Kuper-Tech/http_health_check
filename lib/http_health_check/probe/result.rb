@@ -12,12 +12,16 @@ module HttpHealthCheck
       end
 
       def initialize(is_ok, meta)
-        unless meta.is_a?(Hash)
-          raise ::HttpHealthCheck::ConfigurationError, "Probe result meta must be a Hash, got #{meta.inspect}"
+        @meta = Hash(meta)
+        unless @meta.is_a?(Hash)
+
         end
 
         @ok = is_ok
-        @meta = meta
+      rescue StandardError => e
+        e = ::HttpHealthCheck::ConfigurationError.new(e.message)
+        e.set_backtrace(e.backtrace)
+        raise e
       end
       attr_reader :meta
 
