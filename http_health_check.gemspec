@@ -5,6 +5,7 @@ require_relative 'lib/http_health_check/version'
 Gem::Specification.new do |spec|
   spec.name          = 'http_health_check'
   spec.version       = HttpHealthCheck::VERSION
+  spec.licenses      = ['MIT']
   spec.authors       = ['SberMarket team']
   spec.email         = ['pochi.73@gmail.com']
 
