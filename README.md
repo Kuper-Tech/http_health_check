@@ -1,11 +1,13 @@
 # HttpHealthCheck
 
+[![Gem Version](https://badge.fury.io/rb/http_health_check.svg)](https://badge.fury.io/rb/http_health_check)
+
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'http_health_check', '~> 0.2.0'
+gem 'http_health_check', '~> 0.2.1'
 ```
 
 And then execute:

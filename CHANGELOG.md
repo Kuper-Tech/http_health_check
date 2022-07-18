@@ -17,3 +17,9 @@ Features:
 Fix:
 
 - fix builtin probes requirement
+
+## 0.2.1 (2022-07-18)
+
+Fix:
+
+- fix gemspec
