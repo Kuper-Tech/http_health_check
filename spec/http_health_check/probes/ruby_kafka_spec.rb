@@ -24,7 +24,7 @@ describe HttpHealthCheck::Probes::RubyKafka do
     let(:group) { 'important-consumer' }
     let(:consumer_groups) { [group] }
 
-    context 'when specified group heartbeat is expired' do
+    context 'when heartbeat is expired' do
       it 'returns an error' do
         topic_partitions = { 'foo' => %w[1 2], 'bar' => %w[3 4] }
         emit_hb_event(group, topic_partitions: topic_partitions)
@@ -34,13 +34,47 @@ describe HttpHealthCheck::Probes::RubyKafka do
         expect(result).not_to be_ok
 
         meta = result.meta[:failed_groups][group]
-        expect(meta[:seconds_since_last_heartbeat]).to be_within(1).of(15)
-        expect(meta[:topic_partitions]).to eq(topic_partitions)
         expect(meta[:had_heartbeat]).to eq(true)
+        expect(meta[:threads].size).to eq(1)
+
+        thread_meta = meta[:threads].values.first
+        expect(thread_meta[:seconds_since_last_heartbeat]).to be_within(1).of(15)
+        expect(thread_meta[:topic_partitions]).to eq(topic_partitions)
       end
     end
 
-    context 'when specified group heartbeat had not been emitted yet' do
+    context 'with multiple threads' do
+      let(:consumer_groups) { [group, group] }
+
+      context 'when number of heartbeats is equal to group concurrency' do
+        it 'returns ok' do
+          emit_hb_event(group)
+          Thread.new { emit_hb_event(group) }
+          sleep(0.01)
+
+          expect(timer).to receive(:now).and_return(Time.now)
+          result = probe.call(nil)
+          expect(result).to be_ok
+        end
+      end
+
+      context 'when some heartbeats are missing' do
+        it 'returns an error' do
+          Thread.new { emit_hb_event(group) }
+          sleep(0.01)
+
+          expect(timer).to receive(:now).and_return(Time.now)
+          result = probe.call(nil)
+          expect(result).not_to be_ok
+
+          meta = result.meta[:failed_groups][group]
+          expect(meta[:had_heartbeat]).to eq(true)
+          expect(meta[:threads].size).to eq(1)
+        end
+      end
+    end
+
+    context 'when heartbeat had not been emitted yet' do
       it 'return an error' do
         expect(timer).to receive(:now).and_return(Time.now)
 
@@ -61,33 +95,8 @@ describe HttpHealthCheck::Probes::RubyKafka do
         expect(result).to be_ok
 
         meta = result.meta[:groups][group]
-        expect(meta[:seconds_since_last_heartbeat]).to be_within(1).of(5)
-        expect(meta[:had_heartbeat]).to eq(true)
-      end
-    end
-  end
-
-  context 'without list of consumer groups' do
-    let(:consumer_groups) { nil }
-
-    context 'when no heartbeats were emitted' do
-      it 'return ok' do
-        expect(timer).to receive(:now).and_return(Time.now)
-
-        result = probe.call(nil)
-        expect(result).to be_ok
-      end
-    end
-
-    context 'when heartbeat is expired' do
-      it 'return an error' do
-        emit_hb_event('consumer-group')
-
-        expect(timer).to receive(:now).and_return(Time.now + 15)
-        result = probe.call(nil)
-        expect(result).not_to be_ok
-
-        expect(result.meta[:failed_groups].keys).to eq(['consumer-group'])
+        thread_meta = meta[:threads].values.first
+        expect(thread_meta[:seconds_since_last_heartbeat]).to be_within(1).of(5)
       end
     end
   end

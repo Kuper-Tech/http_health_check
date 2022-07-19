@@ -77,6 +77,29 @@ HttpHealthCheck.run_server_async(
 )
 ```
 
+Ruby kafka probe supports multi-threaded setups, i.e. if you are using karafka and you define multiple blocks with the same consumer group like
+
+```ruby
+class KarafkaApp < Karafka::App
+  consumer_groups.draw do
+    consumer_group 'foo' do
+      # ...
+    end
+  end
+
+  consumer_groups.draw do
+    consumer_group 'foo' do
+      # ...
+    end
+  end
+end
+
+KarafkaApp.consumer_groups.map(&:id)
+# => ['foo', 'foo']
+```
+
+ruby-kafka probe will count heartbeats from multiple threads.
+
 ### Kubernetes deployment example
 
 ```yaml

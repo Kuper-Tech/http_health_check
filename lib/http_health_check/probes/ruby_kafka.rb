@@ -9,7 +9,8 @@ module HttpHealthCheck
       def initialize(opts = {})
         @heartbeat_event_name = opts.fetch(:heartbeat_event_name, /heartbeat.consumer.kafka/)
         @heartbeat_interval_sec = opts.fetch(:heartbeat_interval_sec, 10)
-        @consumer_groups = opts.fetch(:consumer_groups, nil)
+        @consumer_groups = opts.fetch(:consumer_groups)
+                               .each_with_object(Hash.new(0)) { |group, hash| hash[group] += 1 }
         @heartbeats = {}
         @timer = opts.fetch(:timer, Time)
 
@@ -18,7 +19,7 @@ module HttpHealthCheck
 
       def probe(_env)
         now = @timer.now
-        failed_heartbeats = select_failed_heartbeats(@consumer_groups || @heartbeats.keys, now)
+        failed_heartbeats = select_failed_heartbeats(now)
         return probe_ok groups: meta_from_heartbeats(@heartbeats, now) if failed_heartbeats.empty?
 
         probe_error failed_groups: meta_from_heartbeats(failed_heartbeats, now)
@@ -26,25 +27,29 @@ module HttpHealthCheck
 
       private
 
-      def select_failed_heartbeats(consumer_groups, now)
-        consumer_groups.each_with_object({}) do |group, hash|
-          heartbeat = @heartbeats[group]
-          hash[group] = heartbeat if heartbeat.nil? || heartbeat.time + @heartbeat_interval_sec < now
+      def select_failed_heartbeats(now)
+        @consumer_groups.each_with_object({}) do |(group, concurrency), hash|
+          heartbeats = @heartbeats[group] || {}
+          ok_heartbeats_count = heartbeats.count { |_id, hb| hb.time + @heartbeat_interval_sec >= now }
+          hash[group] = heartbeats if ok_heartbeats_count < concurrency
         end
       end
 
-      def meta_from_heartbeats(heartbeats, now) # rubocop: disable Metrics/MethodLength
-        heartbeats.each_with_object({}) do |(group, heartbeat), hash|
-          if heartbeat.nil?
-            hash[group] = { had_heartbeat: false }
+      def meta_from_heartbeats(heartbeats_hash, now) # rubocop: disable Metrics/MethodLength
+        heartbeats_hash.each_with_object({}) do |(group, heartbeats), hash|
+          concurrency = @consumer_groups[group]
+          if heartbeats.empty?
+            hash[group] = { had_heartbeat: false, concurrency: concurrency }
             next
           end
 
-          hash[group] = {
-            had_heartbeat: true,
-            seconds_since_last_heartbeat: now - heartbeat.time,
-            topic_partitions: heartbeat.topic_partitions
-          }
+          hash[group] = { had_heartbeat: true, concurrency: concurrency, threads: {} }
+          heartbeats.each do |thread_id, heartbeat|
+            hash[group][:threads][thread_id] = {
+              seconds_since_last_heartbeat: now - heartbeat.time,
+              topic_partitions: heartbeat.topic_partitions
+            }
+          end
         end
       end
 
@@ -53,7 +58,8 @@ module HttpHealthCheck
           event = ActiveSupport::Notifications::Event.new(*args)
           group = event.payload[:group_id]
 
-          @heartbeats[group] = Heartbeat.new(event.time, group, event.payload[:topic_partitions])
+          @heartbeats[group] ||= {}
+          @heartbeats[group][event.transaction_id] = Heartbeat.new(event.time, group, event.payload[:topic_partitions])
         end
       end
     end
