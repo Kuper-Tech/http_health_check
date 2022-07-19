@@ -1,0 +1,34 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ruby: ["2.5", "2.6", "2.7", "3.0"]
+    name: Ruby ${{ matrix.ruby }} sample
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: ${{matrix.ruby}}
+      - name: Install latest bundler
+        run: |
+          gem install bundler --no-document
+          bundle config set without 'tools benchmarks docs'
+      - name: Bundle install
+        run: |
+          bundle config set without development
+          bundle install --jobs 4 --retry 3
+      - name: Run all tests
+        run: bundle exec rspec
+      - name: Run rubocop
+        run: bundle exec rubocop
