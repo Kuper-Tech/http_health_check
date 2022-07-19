@@ -3,6 +3,7 @@ PATH
   specs:
     http_health_check (0.2.1)
       rack (~> 2.0)
+      webrick
 
 GEM
   remote: https://rubygems.org/
@@ -57,6 +58,7 @@ GEM
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
     unicode-display_width (1.8.0)
+    webrick (1.7.0)
 
 PLATFORMS
   ruby

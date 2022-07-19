@@ -3,10 +3,18 @@
 require 'spec_helper'
 require 'net/http'
 require 'uri'
+require 'socket'
 
 describe HttpHealthCheck do
-  # TODO: look for a free port
-  let(:port) { rand(50_000..55_999) }
+  let(:port) { find_free_tcp_port }
+
+  def find_free_tcp_port
+    server = TCPServer.new('127.0.0.1', 0)
+    port = server.addr[1]
+    server.close
+
+    port
+  end
 
   def request(path_with_query)
     uri = URI.parse("http://127.0.0.1/#{path_with_query}")
@@ -20,7 +28,7 @@ describe HttpHealthCheck do
   rescue StandardError
     raise if attempts_left == 0
 
-    sleep(0.005)
+    sleep(0.01)
     wait_server_started(attempts_left - 1)
   end
 

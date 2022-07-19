@@ -28,6 +28,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'rack', '~> 2.0'
+  spec.add_dependency 'webrick'
 
   spec.add_development_dependency 'dotenv', '~> 2.7.6'
   spec.add_development_dependency 'redis', '~> 4.2.5'

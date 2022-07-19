@@ -36,7 +36,7 @@ module HttpHealthCheck
   end
 
   def self.run_server_async(opts)
-    Thread.new { run_server(opts) }
+    Thread.new { run_server(**opts) }
   end
 
   def self.run_server(port:, host: '0.0.0.0', rack_app: nil)
