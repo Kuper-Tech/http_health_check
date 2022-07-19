@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   redis:
-    image: dreg.sbmt.io/dhub/bitnami/redis:6.2
+    image: bitnami/redis:6.2
     environment:
       REDIS_PASSWORD: supersecret
     volumes:

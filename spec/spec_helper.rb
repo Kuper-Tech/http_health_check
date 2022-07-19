@@ -28,6 +28,8 @@ if ENV['TEST_COVERAGE'] == 'true'
 end
 
 RSpec.configure do |config|
+  config.filter_run_excluding redis: true if ENV['SKIP_REDIS_SPECS']
+
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.

@@ -20,7 +20,7 @@ describe HttpHealthCheck::Probes::Sidekiq do
 
   let(:sidekiq) { fake_sidekiq.new(redis) }
 
-  context 'when redis is available' do
+  context 'when redis is available', redis: true do
     let(:redis) { Redis.new(url: ENV.fetch('REDIS_URL', 'redis://127.0.0.1:6379/1')) }
 
     it 'writes temporary key into redis and returns positive result' do
@@ -35,7 +35,7 @@ describe HttpHealthCheck::Probes::Sidekiq do
     end
   end
 
-  context 'when redis is not available' do
+  context 'when redis is not available', redis: true do
     let(:redis) { Redis.new(url: 'redis://127.0.0.1:63799/999') }
 
     it 'returns an error' do

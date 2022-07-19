@@ -5,7 +5,8 @@ require 'net/http'
 require 'uri'
 
 describe HttpHealthCheck do
-  let(:port) { 51_142 }
+  # TODO: look for a free port
+  let(:port) { rand(50_000..55_999) }
 
   def request(path_with_query)
     uri = URI.parse("http://127.0.0.1/#{path_with_query}")
