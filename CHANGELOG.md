@@ -1,12 +1,16 @@
 # CHANGELOG.md
 
-## 0.1.1 (2022-07-17)
+## 0.3.0 (unreleased)
 
 Features:
 
-- implement basic functionality
-- add builtin sidekiq probe
-- add builtin delayed job probe
+- add ruby-kafka probe
+
+## 0.2.1 (2022-07-18)
+
+Fix:
+
+- fix gemspec
 
 ## 0.2.0 (2022-07-18)
 
@@ -18,8 +22,10 @@ Fix:
 
 - fix builtin probes requirement
 
-## 0.2.1 (2022-07-18)
+## 0.1.1 (2022-07-17)
 
-Fix:
+Features:
 
-- fix gemspec
+- implement basic functionality
+- add builtin sidekiq probe
+- add builtin delayed job probe
