@@ -7,21 +7,18 @@ module HttpHealthCheck
       include ::HttpHealthCheck::Probe
 
       def initialize(opts = {})
-        @heartbeat_event_name = opts.delete(:heartbeat_event_name) || /heartbeat.consumer.kafka/
-        @heartbeat_interval_sec = opts.delete(:heartbeat_interval_sec) || 10
-        @consumer_groups = opts.delete(:consumer_groups)
+        @heartbeat_event_name = opts.fetch(:heartbeat_event_name, /heartbeat.consumer.kafka/)
+        @heartbeat_interval_sec = opts.fetch(:heartbeat_interval_sec, 10)
+        @consumer_groups = opts.fetch(:consumer_groups, nil)
         @heartbeats = {}
-        @timer = opts.delete(:timer) || Time
+        @timer = opts.fetch(:timer, Time)
 
         setup_subscriptions
       end
 
       def probe(_env)
         now = @timer.now
-        failed_heartbeats = select_failed_heartbeats(
-          @consumer_groups.nil? ? @heartbeats.keys : @consumer_groups, now
-        )
-
+        failed_heartbeats = select_failed_heartbeats(@consumer_groups || @heartbeats.keys, now)
         return probe_ok groups: meta_from_heartbeats(@heartbeats, now) if failed_heartbeats.empty?
 
         probe_error failed_groups: meta_from_heartbeats(failed_heartbeats, now)
