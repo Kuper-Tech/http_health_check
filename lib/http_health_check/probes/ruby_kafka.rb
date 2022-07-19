@@ -9,6 +9,7 @@ module HttpHealthCheck
       def initialize(opts = {})
         @heartbeat_event_name = opts.fetch(:heartbeat_event_name, /heartbeat.consumer.kafka/)
         @heartbeat_interval_sec = opts.fetch(:heartbeat_interval_sec, 10)
+        @verbose = opts.fetch(:verbose, false)
         @consumer_groups = opts.fetch(:consumer_groups)
                                .each_with_object(Hash.new(0)) { |group, hash| hash[group] += 1 }
         @heartbeats = {}
@@ -35,7 +36,7 @@ module HttpHealthCheck
         end
       end
 
-      def meta_from_heartbeats(heartbeats_hash, now) # rubocop: disable Metrics/MethodLength
+      def meta_from_heartbeats(heartbeats_hash, now) # rubocop: disable Metrics/MethodLength, Metrics/AbcSize
         heartbeats_hash.each_with_object({}) do |(group, heartbeats), hash|
           concurrency = @consumer_groups[group]
           if heartbeats.empty?
@@ -45,10 +46,9 @@ module HttpHealthCheck
 
           hash[group] = { had_heartbeat: true, concurrency: concurrency, threads: {} }
           heartbeats.each do |thread_id, heartbeat|
-            hash[group][:threads][thread_id] = {
-              seconds_since_last_heartbeat: now - heartbeat.time,
-              topic_partitions: heartbeat.topic_partitions
-            }
+            thread_meta = { seconds_since_last_heartbeat: now - heartbeat.time }
+            thread_meta[:topic_partitions] = heartbeat.topic_partitions if @verbose
+            hash[group][:threads][thread_id] = thread_meta
           end
         end
       end

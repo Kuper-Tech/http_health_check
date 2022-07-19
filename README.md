@@ -71,7 +71,9 @@ HttpHealthCheck.run_server_async(
       consumer_groups: KarafkaApp.consumer_groups.map(&:id),
       # default heartbeat interval is 3 seconds, but we want to give it
       # an ability to skip a few before failing the probe
-      heartbeat_interval_sec: 10
+      heartbeat_interval_sec: 10,
+      # includes a list of topics and partitions into response for every consumer thread. false by default
+      verbose: false
     )
   end
 )

@@ -7,11 +7,13 @@ describe HttpHealthCheck::Probes::RubyKafka do
   let(:timer) { double(Time) }
   let(:event_name) { 'fake.heartbeat.consumer.kafka' }
   let(:consumer_groups) { nil }
+  let(:verbose) { true }
   let!(:probe) do
     described_class.new(
       consumer_groups: consumer_groups,
       timer: timer,
-      heartbeat_event_name: event_name
+      heartbeat_event_name: event_name,
+      verbose: verbose
     )
   end
 
@@ -97,6 +99,22 @@ describe HttpHealthCheck::Probes::RubyKafka do
         meta = result.meta[:groups][group]
         thread_meta = meta[:threads].values.first
         expect(thread_meta[:seconds_since_last_heartbeat]).to be_within(1).of(5)
+      end
+    end
+
+    context 'when verbose=false' do
+      let(:verbose) { false }
+
+      it 'does not include topic_partitions into result meta' do
+        emit_hb_event(group)
+
+        expect(timer).to receive(:now).and_return(Time.now + 5)
+        result = probe.call(nil)
+        expect(result).to be_ok
+
+        meta = result.meta[:groups][group]
+        thread_meta = meta[:threads].values.first
+        expect(thread_meta.keys).not_to include(:topic_partitions)
       end
     end
   end
