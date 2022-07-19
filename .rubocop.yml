@@ -6,7 +6,8 @@ Style/Documentation:
 
 Metrics/BlockLength:
   Exclude:
-    - 'spec/**/*.rb'
+    - "spec/**/*.rb"
+    - "http_health_check.gemspec"
 
 Style/CommentedKeyword:
   Enabled: false
