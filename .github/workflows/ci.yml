@@ -28,7 +28,14 @@ jobs:
         run: |
           bundle config set without development
           bundle install --jobs 4 --retry 3
+      - name: Start Redis
+        uses: supercharge/redis-github-action@1.4.0
+        with:
+          redis-version: 4
+          redis-container-name: redis
       - name: Run all tests
         run: bundle exec rspec
+        env:
+          REDIS_URL: redis://redis:6379/0
       - name: Run rubocop
         run: bundle exec rubocop
