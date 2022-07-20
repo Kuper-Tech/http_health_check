@@ -68,7 +68,7 @@ HttpHealthCheck.run_server_async(
   port: 5555,
   rack_app: HttpHealthCheck::RackApp.configure do |c|
     c.probe '/readiness/karafka', HttpHealthCheck::Probes::RubyKafka.new(
-      consumer_groups: KarafkaApp.consumer_groups.map(&:id),
+      consumer_groups: HttpHealthCheck::Utils::Karafka.consumer_groups(KarafkaApp),
       # default heartbeat interval is 3 seconds, but we want to give it
       # an ability to skip a few before failing the probe
       heartbeat_interval_sec: 10,
@@ -96,7 +96,7 @@ class KarafkaApp < Karafka::App
   end
 end
 
-KarafkaApp.consumer_groups.map(&:id)
+HttpHealthCheck::Utils::Karafka.consumer_groups(KarafkaApp)
 # => ['foo', 'foo']
 ```
 

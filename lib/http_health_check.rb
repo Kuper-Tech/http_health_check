@@ -7,6 +7,7 @@ require_relative 'http_health_check/config/dsl'
 require_relative 'http_health_check/probe'
 require_relative 'http_health_check/rack_app'
 require_relative 'http_health_check/probes'
+require_relative 'http_health_check/utils'
 
 module HttpHealthCheck
   class Error < StandardError; end
