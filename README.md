@@ -11,7 +11,7 @@ HttpHealthCheck is built with kubernetes health probes in mind, but it can be us
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'http_health_check', '~> 0.3.1'
+gem 'http_health_check', '~> 0.4.0'
 ```
 
 And then execute:

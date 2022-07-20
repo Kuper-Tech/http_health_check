@@ -1,5 +1,11 @@
 # CHANGELOG.md
 
+## 0.4.0 (2022-07-20)
+
+Features:
+
+- add karafka consumer groups utility function
+
 ## 0.3.0 (2022-07-19)
 
 Features:
