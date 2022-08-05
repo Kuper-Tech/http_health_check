@@ -1,5 +1,11 @@
 # CHANGELOG.md
 
+## 0.4.1 (2022-08-05)
+
+Fix:
+
+- Fix DelayedJob probe [PR#2](https://github.com/SberMarket-Tech/http_health_check/pull/2)
+
 ## 0.4.0 (2022-07-20)
 
 Features:

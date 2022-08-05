@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    http_health_check (0.4.0)
+    http_health_check (0.4.1)
       rack (~> 2.0)
       webrick
 
