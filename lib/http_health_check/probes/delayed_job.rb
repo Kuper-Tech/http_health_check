@@ -17,6 +17,7 @@ module HttpHealthCheck
       end
 
       def probe(_env)
+        @delayed_job.where(queue: HealthCheckJob.queue_name).each(&:destroy!)
         @delayed_job.enqueue(HealthCheckJob).destroy!
         probe_ok
       end
