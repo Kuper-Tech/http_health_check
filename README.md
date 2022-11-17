@@ -203,7 +203,7 @@ Be aware that this approach does not cover issues with sidekiq being stuck proce
 
 ```ruby
 HttpHealthCheck.configure do |config|
-  config.probe '/readiness/delayed_job', HttpHealthCheck::Probes::Sidekiq.new
+  config.probe '/readiness/sidekiq', HttpHealthCheck::Probes::Sidekiq.new
 end
 ```
 
