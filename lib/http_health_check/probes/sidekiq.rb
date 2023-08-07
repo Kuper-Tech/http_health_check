@@ -14,7 +14,7 @@ module HttpHealthCheck
 
       def probe(_env)
         @sidekiq_module.redis do |conn|
-          conn.setex(meta[:redis_key], TTL_SEC, MAGIC_NUMBER)
+          conn.call('SET', meta[:redis_key], MAGIC_NUMBER, 'EX', TTL_SEC)
           probe_ok
         end
       end

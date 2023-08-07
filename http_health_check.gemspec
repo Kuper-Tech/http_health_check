@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'activesupport', '~> 5.0'
   spec.add_development_dependency 'dotenv', '~> 2.7.6'
   spec.add_development_dependency 'redis', '~> 4.2.5'
+  spec.add_development_dependency 'redis-client', '~> 0.15.0'
   spec.add_development_dependency 'rspec', '~> 3.2'
   spec.add_development_dependency 'rubocop', '~> 0.81'
   spec.add_development_dependency 'thor', '>= 0.20'
