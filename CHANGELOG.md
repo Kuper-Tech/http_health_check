@@ -1,5 +1,11 @@
 # CHANGELOG.md
 
+## 0.5.0 (2023-08-16)
+
+Features:
+
+- Add Sidekiq 6+ support [PR#4](https://github.com/SberMarket-Tech/http_health_check/pull/4)
+
 ## 0.4.1 (2022-08-05)
 
 Fix:
