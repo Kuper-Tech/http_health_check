@@ -6,7 +6,7 @@ describe HttpHealthCheck::Utils::Karafka do
   describe '.consumer_groups' do
     let(:karafka_app) do
       OpenStruct.new(
-        consumer_groups: %w[foo bar baz].map { |cg| OpenStruct.new(id: 'foo_app_' + cg) },
+        consumer_groups: %w[foo bar baz].map { |cg| OpenStruct.new(id: "foo_app_#{cg}") },
         config: OpenStruct.new(client_id: 'foo-app')
       )
     end

@@ -10,7 +10,7 @@ module HttpHealthCheck
       # @param karafka_app descendant of Karafka::App
       def self.consumer_groups(karafka_app, program_name: $PROGRAM_NAME, argv: ARGV) # rubocop:disable Metrics/AbcSize
         all_groups = karafka_app.consumer_groups.map(&:id)
-        client_id_prefix = karafka_app.config.client_id.gsub('-', '_') + '_'
+        client_id_prefix = "#{karafka_app.config.client_id.gsub('-', '_')}_"
 
         return all_groups if program_name.split('/').last != 'karafka'
         return all_groups if argv[0] != 'server'
