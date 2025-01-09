@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ostruct'
+
 require_relative '../../../lib/http_health_check/utils/karafka'
 
 describe HttpHealthCheck::Utils::Karafka do

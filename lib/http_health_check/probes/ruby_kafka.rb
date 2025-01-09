@@ -19,7 +19,7 @@ module HttpHealthCheck
       end
 
       def probe(_env)
-        now = @timer.now
+        now = @timer.now.to_i
         failed_heartbeats = select_failed_heartbeats(now)
         return probe_ok groups: meta_from_heartbeats(@heartbeats, now) if failed_heartbeats.empty?
 
@@ -59,8 +59,21 @@ module HttpHealthCheck
           group = event.payload[:group_id]
 
           @heartbeats[group] ||= {}
-          @heartbeats[group][event.transaction_id] = Heartbeat.new(event.time, group, event.payload[:topic_partitions])
+          @heartbeats[group][event.transaction_id] = Heartbeat.new(
+            event_time(event), group, event.payload[:topic_partitions]
+          )
         end
+      end
+
+      def event_time(event)
+        # event.time in millis in ActiveSupport >= 7.0 && ActiveSupport< 7.1.4
+        # see ActiveSupport::Notifications::Event.initialize
+        active_support_version = ActiveSupport.gem_version
+        if active_support_version >= Gem::Version.new('7.0.0') && active_support_version < Gem::Version.new('7.1.4')
+          return (event.time.to_i / 1000)
+        end
+
+        event.time.to_i
       end
     end
   end

@@ -49,7 +49,7 @@ describe HttpHealthCheck do
     end
 
     context 'with custom configuration' do
-      class MyCustomProbe # rubocop:disable Lint/ConstantDefinitionInBlock
+      class MyCustomProbe
         include HttpHealthCheck::Probe
 
         def probe(env)

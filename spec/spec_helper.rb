@@ -16,6 +16,10 @@
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
+ENV['RAILS_ENV'] = 'test'
+
+require 'bundler/setup'
+
 require 'dotenv/load'
 require 'http_health_check'
 

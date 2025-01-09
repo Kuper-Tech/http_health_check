@@ -1,0 +1,37 @@
+include:
+  - project: "nstmrt/rubygems/templates"
+    ref: master
+    file: "build-rubygems.yml"
+
+lint:
+  stage: test
+  image: ${BUILD_CONF_HARBOR_REGISTRY}/dhub/library/ruby:3.3
+  tags:
+    - paas-tests
+  script:
+    - bundle install
+    - bundle exec rubocop
+
+tests:
+  stage: test
+  image: ${BUILD_CONF_HARBOR_REGISTRY}/dhub/library/ruby:$RUBY_VERSION
+  tags:
+    - paas-tests
+  services:
+    - name: ${BUILD_CONF_HARBOR_REGISTRY}/dhub/bitnami/redis:6.2
+      alias: redis
+  variables:
+    REDIS_PASSWORD: supersecret
+  parallel:
+    matrix:
+      - RUBY_VERSION: ['2.7', '3.0', '3.1', '3.2', '3.3', '3.4']
+  before_script:
+    - gem sources --remove https://rubygems.org/
+    - gem sources --add ${RUBYGEMS_PUBLIC_SOURCE}
+    - gem install bundler -v 2.3.26
+    - bin/setup
+  script:
+    - bundle exec appraisal rspec --format RspecJunitFormatter --out test-results/rspec_$RUBY_VERSION.xml --format documentation
+  artifacts:
+    reports:
+      junit: test-results/rspec*.xml

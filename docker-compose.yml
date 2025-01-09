@@ -1,13 +1,40 @@
-version: '3.5'
 services:
+  ruby:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        RUBY_VERSION: ${RUBY_VERSION:-3.3}
+        BUNDLER_VERSION: 2.4.22
+        RUBYGEMS_VERSION: 3.4.22
+    image: http_health_check-dev:0.1.0-ruby_${RUBY_VERSION:-3.3}
+    environment:
+      HISTFILE: /app/tmp/.bash_history
+      BUNDLE_PATH: /usr/local/bundle
+      BUNDLE_CONFIG: /app/.bundle/config
+      REDIS_URL: redis://:supersecret@redis:6379/10
+    command: bash
+    working_dir: /app
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app:cached
+      - ${SBMT_RUBYGEMS_PATH:-..}:/app/vendor/gems:cached
+      - bundler_data:/usr/local/bundle
+
   redis:
     image: bitnami/redis:6.2
     environment:
       REDIS_PASSWORD: supersecret
     volumes:
       - redis:/data
+    healthcheck:
+      test: redis-cli -a supersecret ping
+      interval: 10s
     ports:
-      - '6379:6379'
+      - '6379'
 
 volumes:
-  redis: {}
+  bundler_data:
+  redis:

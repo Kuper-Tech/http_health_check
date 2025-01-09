@@ -3,8 +3,15 @@
 /_yardoc/
 /coverage/
 /doc/
+/log/
 /pkg/
 /spec/reports/
 /tmp/
 /.idea
 *.gem
+/test-results/
+.rspec_status
+/Gemfile.lock
+/gemfiles/*gemfile*
+/spec/internal/log/*.log
+test.log
