@@ -1,5 +1,16 @@
 # CHANGELOG.md
 
+## 1.0.0 (2024-12-28)
+
+Features:
+
+- Drop ruby 2.5/2.6 support
+- Add appraisals
+
+Fix:
+
+- Fix ruby-kafka health-check bug for some ActiveSupport versions
+
 ## 0.5.0 (2023-08-16)
 
 Features:
