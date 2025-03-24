@@ -150,7 +150,7 @@ HttpHealthCheck.configure do |c|
   HttpHealthCheck.add_builtin_probes(c)
 
   # optionally override fallback (route not found) handler
-  c.fallback_handler do |env|
+  c.fallback_app do |env|
     [404, {}, ['not found :(']]
   end
 
