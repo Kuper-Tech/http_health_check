@@ -1,5 +1,11 @@
 # CHANGELOG.md
 
+## 1.1.0 (2025-03-28)
+
+Features:
+
+- Support rack v3
+
 ## 1.0.0 (2024-12-28)
 
 Features:
