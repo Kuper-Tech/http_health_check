@@ -5,8 +5,8 @@ require 'logger'
 
 module HttpHealthCheck
   class RackApp
-    HEADERS = { 'Content-Type' => 'application/json' }.freeze
-    DEFAULT_FALLBACK_APP = ->(_env) { [404, HEADERS, ['{"error": "not_found"}']] }.freeze
+    HEADERS = { 'content-type' => 'application/json' } # rubocop:disable Style/MutableConstant
+    DEFAULT_FALLBACK_APP = ->(_env) { [404, HEADERS, ['{"error": "not_found"}']] }
     LIVENESS_CHECK_APP = ->(_env) { [200, HEADERS, ["{}\n"]] }
 
     def self.configure

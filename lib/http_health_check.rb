@@ -2,6 +2,8 @@
 
 require 'rack'
 
+require 'rackup/handler/webrick' if Gem::Version.new(::Rack.release) >= Gem::Version.new('3')
+
 require_relative 'http_health_check/version'
 require_relative 'http_health_check/config/dsl'
 require_relative 'http_health_check/probe'
@@ -44,10 +46,16 @@ module HttpHealthCheck
     rack_app ||= ::HttpHealthCheck.rack_app
     rack_app_with_logger = ::Rack::CommonLogger.new(rack_app, rack_app.logger)
 
-    ::Rack::Handler::WEBrick.run(rack_app_with_logger,
-                                 Host: host,
-                                 Port: port,
-                                 AccessLog: [],
-                                 Logger: rack_app.logger)
+    webrick.run(rack_app_with_logger,
+                Host: host,
+                Port: port,
+                AccessLog: [],
+                Logger: rack_app.logger)
+  end
+
+  def self.webrick
+    return ::Rack::Handler::WEBrick if Gem::Version.new(::Rack.release) < Gem::Version.new('3')
+
+    ::Rackup::Handler::WEBrick
   end
 end
